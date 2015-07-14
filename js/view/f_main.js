@@ -6,9 +6,7 @@
  * Time: 下午4:28
  * To change this template use File | Settings | File Templates.
  */
-define(function (require, exports, module) {
-    //Do setup work here
-    var config = module.config()
+view.definePage("f_main",function () {
     return {
         color: "black",
         size: "unisize"

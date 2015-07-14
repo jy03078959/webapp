@@ -3,10 +3,13 @@
  */
 (function(ctx){
     var CONFIG = {};
-
-    CONFIG.EVENT = {
-
+    var EVENT= {
+        COMMON:{
+            VIEWCHANGE:"VIEWCHANGE"
+        }
     };
+
+    ctx.EVENT = EVENT;
     ctx.CONFIG = CONFIG;
 })(this)
 
