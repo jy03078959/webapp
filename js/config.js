@@ -5,7 +5,8 @@
     var CONFIG = {};
     var EVENT= {
         COMMON:{
-            VIEWCHANGE:"VIEWCHANGE"
+            VIEWCHANGE:"VIEWCHANGE",
+            PAGECHANGE:"PAGECHANGE"
         }
     };
 

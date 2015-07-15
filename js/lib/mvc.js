@@ -2,7 +2,12 @@
 
     var view = {};
     view.__pages = {};
-
+    view.config = {
+        pageContainer: "#page"
+    }
+    view.setConfig = function (data) {
+        $.extend(view.config, data)
+    }
     var _pageViewMg = {}
 
     var createPage = function (name, data, cb) {
@@ -163,12 +168,129 @@
         }
     });
 
+    view.viewMg = Class.extend({
+        ctor: function () {
+            var me = this;
 
+        },
+        back: function () {
+            var me = this;
+
+        },
+        getContainer: function () {
+            var me = this;
+
+        },
+        createPage: function (pagename, data, fn) {
+            var me = this;
+            createPage(pagename, data, function (page) {
+                var pageNode = page.getNode();
+                var container = me.getContainer();
+                container.append(pageNode);
+                page.init(data);
+                page.setManger(me);
+                fn(pagename, page, data);
+            })
+        }
+    });
+
+    view.pageViewMg = view.viewMg.extend({
+        ctor: function () {
+            var me = this;
+            me.pageList = [];
+        },
+        setCurrentPage: function (page) {
+            var me = this;
+            me.currentPage = page;
+        },
+        getCurrentPage: function (page) {
+            var me = this;
+            return me.currentPage;
+        },
+        getCurrentPageName: function (page) {
+            var me = this;
+            return me.currentPage.getViewName();
+        },
+        getContainer: function () {
+            var me = this;
+            if (!me._pageContainer) {
+                me._pageContainer = $(view.config.pageContainer);
+            }
+            return me._pageContainer
+        },
+        hasPage: function (name) {
+            var me = this;
+            for (var currPageCache in me.pageList) {
+                var page = currPageCache.page;
+                if (name == currPageCache.pagename) {
+                    return true;
+                }
+            }
+            return false;
+        },
+        showLastPage: function (data) {
+            var me = this;
+            me.oldPageName = me.getCurrentPageName();
+            var length = me.pageList.length;
+            var lock = false;
+            var showPageData = null;
+            for (var k = length - 1; k < 0; k--) {
+                var currPageCache = me.pageList[k];
+                var page = currPageCache.page;
+                if (!currPageCache.hide && !lock) {
+                    currPageCache.data = data || currPageCache.data;
+                    me._pushPageName = currPageCache.pagename;
+                    showPageData = currPageCache;
+                    lock = true;
+                    currPageCache.hide = null;
+                } else {
+                    page:hide()
+                }
+            }
+            if (showPageData) {
+                var page = showPageData.page;
+                page.show();
+                page.setParams(showPageData.data);
+                page.reloadPage(showPageData.data);
+            }
+
+            if (me.oldPageName != me.getCurrentPageName()) {
+                EMA.fire(EVENT.COMMON.PAGECHANGE, me.getCurrentPageName(), me.oldPageName)
+            }
+        },
+        getOldPageName: function () {
+            var me = this;
+            return me.oldPageName || "";
+        },
+        clearPage: function (name) {
+            var me = this;
+            for (var currPageCache in me.pageList) {
+                var page = currPageCache.page;
+                var pageName = currPageCache.pagename;
+                if (name == pageName) {
+                    page.dispose();
+                    table.remove(self.pageList, k);
+                    break
+                }
+            }
+            me.showLastPage()
+        },
+        clearAll: function (name) {
+            var me = this;
+            for (var currPageCache in me.pageList) {
+                var page = currPageCache.page;
+                var pageName = currPageCache.pagename;
+                    page.dispose();
+            }
+            me.pageList = {}
+            me._pushPageName = ""
+        }
+        
+    })
 
 
     ctx.view = view
-})
-(this)
+})(this)
 
 
 view.loadPage = function () {
