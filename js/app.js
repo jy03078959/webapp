@@ -20,13 +20,19 @@ $(function(){
     ];
     requirejs(baseJsLib,
         function () {
+
+            view.setConfig({
+                pageContainer: "#page"
+            })
+
             Q.reg("page",function(pageName,data){
                 console.log(pageName,data);
+                view.pageViewMg.showPage(pageName,data)
             });
 
             Q.init({
                 key:'!',
-                index:'page/home'/* 首页地址 */
+                index:'page/f_home'/* 首页地址 */
             });
         });
 })
