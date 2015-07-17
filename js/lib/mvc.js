@@ -9,7 +9,7 @@
     view.setConfig = function (data) {
         $.extend(view.config, data)
     }
-    var _pageViewMg = {}
+    var _pageViewMg = {};
 
     var createPage = function (name, data, cb) {
         var me = this;
@@ -28,11 +28,13 @@
         }
 
         if (!view.__pages[name]) {
-            requirejs(["js/view/" + name + ".js","page"+name+".html"], function () {
-                pageExt = view.__pages[name];
-                deal(pageExt, cb);
+            require(["js/view/" + name + ".js"], function (js,page) {
+                view.htmlMg.getTemplate(name, function (html) {
+                    pageExt = view.__pages[name];
+                    deal(pageExt, cb);
+                });
             }, function () {
-                $.warn("加载的" + name + ".js文件必须存在");
+                console.warn("加载的" + name + ".js文件必须存在");
             })
             console.log("加载" + name);
         } else {
@@ -51,7 +53,54 @@
     view.definePage = function (name, obj) {
         view.__pages[name] = obj;
     }
-    view._currentPage = "f_main";
+    view._htmlView = Class.extend({
+        _html:"",
+        _name:"",
+        ctor: function (data,name) {
+            var me = this;
+            me._html=$(data);
+            me._name=name;
+        },
+        getContent: function () {
+            var me = this;
+            if (!me._content) {
+                me._content = $(me._html).find("[tid=pageContent]");
+            }
+            return me._content.clone();
+        },
+
+        getTemplate: function (id) {
+            var me = this;
+            if (!me._template) {
+                me._template = $(me._html).find("[tid=template]");
+                me._templates = {}
+            }
+            if (!me._templates[id]) {
+                me._templates[id] = me._template.find("[tid="+id+"]");
+            }
+            return me._templates[id].clone();
+        }
+    });
+    view._htmlMg = Class.extend({
+        __pagesHtml : {},
+        getTemplate: function (name,fn) {
+            var me = this;
+            if (view.__pagesHtml[name]) {
+                if ($.isFunction(fn)) {
+                    fn(view.__pagesHtml[name]);
+                }
+                return view.__pagesHtml[name];
+            }else{
+                $.get("page/"+name+".html", function(data) {
+                    view.__pagesHtml[name]=new view._htmlView(data,name);
+                    if ($.isFunction(fn)) {
+                        fn(view.__pagesHtml[name]);
+                    }
+                    return view.__pagesHtml[name];
+                });
+            }
+        }
+    })
 
     /**
      * 基础试图
@@ -65,12 +114,12 @@
             var me = this;
             me._disposed = false;
             me.viewName = "view";
-            var node = $("div");
-            node.css("pageBase");
+            var node = $('<div class="pageBase"></div>');
             me.setNode(node);
 
             me.ema = EMA.getProxy();
             me.params = param || {}
+            console.log("view.ctor");
         },
         setManger: function (mg) {
             var me = this;
@@ -88,12 +137,12 @@
         },
         hide: function () {
             var me = this;
-            $(me.getNode()).hide()
+            me.getNode().hide()
         },
         show: function () {
             var me = this;
-            EMA.fire(EVENT.COMMON.VIEWCHANGE)
-            $(me.getNode()).show()
+            EMA.fire(EVENT.COMMON.VIEWCHANGE);
+            me.getNode().show();
         },
         setParams: function (data) {
             var me = this;
@@ -118,10 +167,10 @@
         setViewName: function (viewName) {
             var me = this;
             me.viewName = viewName;
+            me.node.attr("id",viewName);
         }
 
     });
-
     /**
      * 页面视图
      * */
@@ -131,6 +180,7 @@
             var me = this;
             me.cachePage = false; //设置该页面缓存不释放
             me.basePage = false; //设置该页面是基础页面。page的最基本页面
+            console.log("view.page.ctor");
         },
         init: function () {
             var me = this;
@@ -143,6 +193,7 @@
 
         },
         executeOne: function (data) {
+            console.log("view.page.executeOne");
 
         },
         isCachePage: function (data) {
@@ -157,11 +208,11 @@
             return true
         },
         reloadPage: function (data) {
-            this._super(data)
+            console.log("view.page.reloadPage");
             var me = this;
             view.pageViewMg.setCurrentPage(me);
             me.setParams(data);
-            if (me._executeOneEd) {
+            if (!me._executeOneEd) {
                 me.executeOne(data);
                 me._executeOneEd = true;
             }
@@ -343,6 +394,8 @@
                         break
                     }
                 }
+                me.showLastPage(data)
+
             } else {
                 //如果不是老页面 创建新页面 加入pagelist
                 me.createPage(pageName, data, function (pagename, page, data) {
@@ -351,12 +404,12 @@
                     pageCache.pagename = pagename
                     pageCache.data = data
                     me.pageList[me.pageList.length] = pageCache
+                    me.showLastPage(data)
                 })
             }
 
-            me.showLastPage(data)
         },
-        pushPage: function () {
+        pushPage: function (pageName, data) {
             var me = this;
             console.log("pushPage////>", pageName, data)
             if (pageName == me._pushPageName) {
@@ -371,8 +424,8 @@
 
             var isOld = false //是否是老页面
             for (var i = me.pageList.length - 1; i >= 0; i--) {
-
-                var currPage = currPageCache.page
+                var currPageCache = me.pageList[i]
+                var currPage = currPageCache.page;
                 if (currPage.getViewName() == pageName) {
                     isOld = true
                     break
@@ -381,13 +434,13 @@
             if (isOld) {
                 for (var k = me.pageList.length - 1; k >= 0; k--) {
 
-                    var currPageCache = me.pageList[k]
-                    var currPage = currPageCache.page
+                    var currPageCache = me.pageList[k];
+                    var currPage = currPageCache.page;
                     if (currPage) {
                         //如果找到要显示的页面在缓存中，把该页面置顶然后，结束查找，
                         if (currPage.getViewName() == pageName) {
 
-                            me.pageList.splice(k, 1)
+                            me.pageList.splice(k, 1);
 
                             if (currPage.isCachePage() && !currPage.isBasePage()) {
                                 currPageCache.hide = null
@@ -408,6 +461,7 @@
 
                     }
                 }
+                me.showLastPage(data)
 
             } else {
                 //如果不是老页面 创建新页面 加入pagelist
@@ -416,11 +470,11 @@
                     pageCache.page = page;
                     pageCache.pagename = pagename;
                     pageCache.data = data;
-                    me.pageList[me.pageList.length] = pageCache
+                    me.pageList[me.pageList.length] = pageCache;
+                    me.showLastPage(data)
                 })
             }
 
-            me.showLastPage(data)
         },
         getLastPageCacheData: function () {
             var me = this;
@@ -483,6 +537,7 @@
 
     });
 
-    view.pageViewMg = new view._pageViewMg()
+    view.pageViewMg = new view._pageViewMg();
+    view.htmlMg = new view._htmlMg();
     ctx.view = view
 })(this);

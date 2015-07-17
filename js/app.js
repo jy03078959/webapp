@@ -8,13 +8,15 @@ $(function(){
         //never includes a ".js" extension since
         //the paths config could be for a directory.
         paths: {
-            view: '../view'
+            view: '../view',
+            config: '../config'
         }
     });
     var baseJsLib = [
+        "config",
         "q",
+        //"bootstrap.min",
         "underscore",
-        "base",
         "eventManager",
         "mvc"
     ];
@@ -27,7 +29,7 @@ $(function(){
 
             Q.reg("page",function(pageName,data){
                 console.log(pageName,data);
-                view.pageViewMg.showPage(pageName,data)
+                view.pageViewMg.pushPage(pageName,data)
             });
 
             Q.init({

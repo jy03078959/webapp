@@ -1,16 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
-
+    <meta charset="utf-8">
+    <title>webApp</title>
+    <link rel="icon" type="image/GIF" href="res/favicon.ico"/>
+    <meta name="viewport" content="width=320,user-scalable=no"/>
+    <meta name="screen-orientation" content="portrait"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="full-screen" content="yes"/>
+    <meta name="x5-fullscreen" content="true"/>
+    <style>
+        body, canvas, div {
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            -khtml-user-select: none;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        }
+    </style>
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/game.css" rel="stylesheet">
 
 </head>
 <body>
     <div id="page"></div>
-    <div id="welcom"></div>
 </body>
+<script src="js/lib/base.js"></script>
 <script src="js/lib/require.js"></script>
-<script src="js/lib/require_text.js"></script>
 <script src="js/lib/jquery-2.1.4.js"></script>
 <script src="js/app.js"></script>
 </html>

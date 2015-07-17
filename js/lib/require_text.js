@@ -208,8 +208,8 @@ define(['module'], function (module) {
                 var content = text.jsEscape(buildMap[moduleName]);
                 write.asModule(pluginName + "!" + moduleName,
                     "define(function () { return '" +
-                        content +
-                        "';});\n");
+                    content +
+                    "';});\n");
             }
         },
 

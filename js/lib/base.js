@@ -9,6 +9,8 @@
  * MIT Licensed.
  */
 // Inspired by base2 and Prototype
+
+
 (function () {
     var initializing = false, fnTest = /xyz/.test(function () {
         xyz;
@@ -55,8 +57,8 @@
         // The dummy class constructor
         function Class() {
             // All construction is actually done in the init method
-            if (!initializing && this.init)
-                this.init.apply(this, arguments);
+            if (!initializing && this.ctor)
+                this.ctor.apply(this, arguments);
         }
 
         // Populate our constructed prototype object
