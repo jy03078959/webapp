@@ -16,8 +16,6 @@ view.definePage("f_demo",function () {
         executeOne: function (data) {
             var me = this;
             this._super(data);
-            var temp = view.htmlMg.getTemplate("f_demo");
-            me.getNode().append(temp.getContent());
 
         },
         reloadPage: function (data) {

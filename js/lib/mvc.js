@@ -35,6 +35,7 @@
                 });
             }, function () {
                 console.warn("加载的" + name + ".js文件必须存在");
+                app.showPage("f_404")
             })
             console.log("加载" + name);
         } else {
@@ -109,6 +110,7 @@
         params: null,
         node: null,
         ema: null,
+        htmlView:null,
         cachePage: false,//是否缓存页面
         ctor: function (param) {
             var me = this;
@@ -168,6 +170,13 @@
             var me = this;
             me.viewName = viewName;
             me.node.attr("id",viewName);
+        },
+        getHtmlView:function(){
+            return this.htmlView;
+        },
+        setHtmlView:function(temp){
+            var me = this;
+            me.htmlView = temp;
         }
 
     });
@@ -193,8 +202,11 @@
 
         },
         executeOne: function (data) {
+            var me = this;
             console.log("view.page.executeOne");
-
+            var temp = view.htmlMg.getTemplate(me.getViewName());
+            me.getNode().append(temp.getContent());
+            me.setHtmlView(temp);
         },
         isCachePage: function (data) {
             var me = this;

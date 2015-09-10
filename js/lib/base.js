@@ -131,7 +131,7 @@
             return null;
         var str = arguments[0];
         for (var i = 1; i < arguments.length; i++) {
-            str = str.replace('{' + (i - 1) + '}', arguments[i]);
+            str = str.replace('{' + (i) + '}', arguments[i]);
         }
         return str;
     };
